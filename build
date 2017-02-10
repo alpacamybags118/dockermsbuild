@@ -1,0 +1,9 @@
+FROM msbuildtest
+
+SHELL ["powershell"]
+
+COPY . 'C:\\build\\'  
+WORKDIR 'C:\\build\\'
+
+RUN ["nuget.exe", "restore"]
+RUN ["C:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\msbuild.exe", "C:\\build\\MySite.sln"]

@@ -1,0 +1,21 @@
+FROM microsoft/windowsservercore
+
+SHELL ["powershell"]
+
+#install MSBuild
+RUN "Invoke-WebRequest -Uri https://download.microsoft.com/download/E/E/D/EEDF18A8-4AED-4CE0-BEBE-70A83094FC5A/BuildTools_Full.exe -OutFile $env:temp\BuildTools_Full.exe -UseBasicParsing"
+RUN & "$env:temp\BuildTools_Full.exe" /Silent /Full
+
+#install .NET and ASP
+RUN "Install-WindowsFeature NET-Framework-45-ASPNET"
+RUN "Install-WindowsFeature Web-Asp-Net45"
+
+#install nuget
+RUN "Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile "C:\windows\nuget.exe" -UseBasicParsing"
+
+WORKDIR "C:\Program Files (x86)\MSBuild\14.0"
+
+RUN & "C:\windows\nuget.exe" Install MSBuild.Microsoft.VisualStudio.Web.targets -Version 14.0.0.3
+RUN mv 'C:\Program Files (x86)\MSBuild\14.0\MSBuild.Microsoft.VisualStudio.Web.targets.14.0.0.3\tools\VSToolsPath\*' 'C:\Program Files (x86)\MSBuild\14.0\'
+RUN setx PATH '%PATH%;C:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\msbuild.exe'  
+CMD ["C:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\msbuild.exe"]  
